@@ -5,10 +5,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -76,14 +76,66 @@ public class Main {
         Stream<String> streamOfString =
                 Pattern.compile(", ").splitAsStream("a, b, c");
         //File Stream
-//        Path path = Paths.get("file.txt");
-//        try {
-//            Stream<String> streamOfStrings = Files.lines(path);
-//            Stream<String> streamWithCharset =
-//                    Files.lines(path, Charset.forName("UTF-8"));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        Path path = Paths.get("file.txt");
+        try {
+            Stream<String> streamOfStrings = Files.lines(path);
+            Stream<String> streamWithCharset =
+                    Files.lines(path, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        //Stream to collection/array
+        Stream<Integer> int_Stream = Stream.of(1,2,3,4);
+        List<Integer> intList = int_Stream.collect(Collectors.toList());
+        System.out.println(intList);
+        int_Stream = Stream.of(1,2,3,4);
+        Map<Integer,Integer> intMap = int_Stream.collect(Collectors.toMap(i -> i, i -> i+10));
+        System.out.println(intMap);
 
+        Stream<Integer> int_Stream2 = Stream.of(1,2,3,4);
+        Integer[] intArray = int_Stream2.toArray(Integer[]::new);
+        System.out.println(Arrays.toString(intArray));
+        //Stream filter
+        Predicate<Integer> p = num -> num % 2 == 0;
+        List<Integer> _list = Arrays.asList(3,4,6);
+        _list.stream().filter(p).forEach(e -> System.out.print(e+" "));
+        //Stream allMatch,oneMatch,noneMatch
+        Predicate<Integer> p2 = num -> num % 2 == 0;
+        List<Integer> list2 = Arrays.asList(3,5,6);
+        System.out.println("allMatch:" + list2.stream().allMatch(p2));
+        System.out.println("anyMatch:" + list2.stream().anyMatch(p2));
+        System.out.println("noneMatch:" + list2.stream().noneMatch(p2));
+        //findAny and findFirst
+        List<String> list3 = Arrays.asList("G","B","F","E");
+        String any = list3.stream().findAny().get();
+        System.out.println("FindAny: "+ any);
+        String first = list3.stream().findFirst().get();
+        System.out.println("FindFirst: "+ first);
+        //Stream distinct
+        List<Integer> list4 = Arrays.asList(3,4,6,6,4);
+        System.out.print("Distinct elements: ");
+        list4.stream().distinct().forEach(pe -> System.out.print(pe + ", "));
+        //Stream map
+        Stream<String> names = Stream.of("Nam", "Quan", "Cong");
+        System.out.println(names.map(s -> {
+            return s.toUpperCase();
+        }).collect(Collectors.toList()));
+        //Stream max,min
+        List<String> list_char = Arrays.asList("G","B","F","E");
+        String max = list_char.stream().max(Comparator.comparing(String::valueOf)).get();
+        System.out.println("Max:"+ max);
+        String min = list_char.stream().min(Comparator.comparing(String::valueOf)).get();
+        System.out.println("Min:"+ min);
+        //Reuse với stream
+        Stream<String> names2 = Stream.of("Long","Hoang","Cong");
+        names2.forEach(e -> System.out.println(e + " "));
+
+        names2 = Stream.of("Long","Hoang","Cong");
+        names2.forEach(e -> System.out.println(e + ","));
+
+        //or
+        Supplier<Stream<String>> streamSupplier = () -> Stream.of("Long","Hoang","Cong");
+        streamSupplier.get().forEach(e -> System.out.println(e + " "));
+        streamSupplier.get().forEach(e -> System.out.println(e + ","));
     }
 }
